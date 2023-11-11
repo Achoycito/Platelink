@@ -1,12 +1,19 @@
 import cv2
 import math
+import os
+
+ruta_capturas = "C:\\Users\\Alan Gonzalez\\Documents\\Platelink\\cap"
+harcascade = "model/cascade24min.xml"
+
+running = True
 
 #harcascade = "model/haarcascade_russian_plate_number.xml"
 
 # harcascade = "model/bcs_plate_cascade.xml"
 # harcascade = "model/bcs_blue.xml"
 # harcascade = "model/green.xml"
-harcascade = "model/cascade24min.xml"
+
+# harcascade = "model/cascade_a.xml"
 
 # harcascade = "model/bcs_cascade_2.xml"
 # harcascade = "model/cascade.xml"
@@ -18,8 +25,9 @@ cap.set(4, 480) #Alto
 
 min_area = 10000 #Area minima de la imagen de la matricula
 count = 0
+# os.chdir(r'C:\Users\Alan Gonzalez\Documents\Platelink')
 
-while True:
+while running:
     success, img = cap.read()
 
     plate_cascade = cv2.CascadeClassifier(harcascade) #Detectar con el haar
@@ -57,8 +65,8 @@ while True:
     #     cv2.waitKey(500)
     #     count += 1
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
 
 
     # if cv2.waitKey(1) & 0xFF == ord('s'):
@@ -66,3 +74,20 @@ while True:
     #     cv2.imwrite("capturas/img_"+str(count)+".jpg", img_roi)
     #     cv2.waitKey(500)
     #     count+=1
+
+    #Se presiona una tecla
+    k = cv2.waitKey(1)
+
+    if k == ord('q'):       # Si la tecla es Q se borran todas
+                            # las imágenes y se cierra el programa
+        capturas = os.listdir(ruta_capturas)
+        for capt in capturas:
+            os.remove("cap/"+capt)
+        running = False
+        
+    elif k == ord('s'):     # Si la tecla es S, se guarda la última imagen
+                            # coincidencia de matrícula detectada
+        cv2.imwrite("cap/img"+str(count)+".jpg", img_roi)
+        count += 1
+
+

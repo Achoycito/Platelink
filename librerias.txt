@@ -1,0 +1,4 @@
+opencv
+easyocr
+mysql.connector
+imutils
