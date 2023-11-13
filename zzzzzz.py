@@ -4,11 +4,18 @@ import os
 import easyocr
 import mysql.connector
 
+def borrarCapturasEnMemoria():
+    capturas = os.listdir(ruta_capturas)
+    for capt in capturas:
+        os.remove("cap/"+capt)
+
 ruta_capturas = "C:\\Users\\Alan Gonzalez\\Documents\\Platelink\\cap"
 harcascade = "model/cascade24min.xml"
 matr_detectada = ""
 
 running = True
+
+borrarCapturasEnMemoria()
 
 cap = cv2.VideoCapture(0)
 
@@ -51,33 +58,48 @@ while running:
 
     if k == ord('q'):       # Si la tecla es Q se borran todas
                             # las imágenes y se cierra el programa
-        capturas = os.listdir(ruta_capturas)
-        for capt in capturas:
-            os.remove("cap/"+capt)
+        borrarCapturasEnMemoria()
         running = False
         
     elif k == ord('s'):     # Si la tecla es S, se guarda la última imagen
                             # coincidencia de matrícula detectada
-        cv2.imwrite("cap/img"+str(count)+".jpg", img_roi)
+        try:
+            if img_roi is None:
+                print("No se ha detectado una matrícula todavía")
+            else:
+                # Codigo de que si encontro esa madre
 
-        reader = easyocr.Reader(["es"], gpu=True)
-        output = reader.readtext("cap/img"+str(count)+".jpg")
+                cv2.imwrite("cap/img"+str(count)+".jpg", img_roi)
 
-        for i in output:
-            if "-" in i[1]:
-                print("Numero de matricula encontrado: " + i[1])
-                matr_detectada = i[1]
+                reader = easyocr.Reader(["es"], gpu=True)
+                output = reader.readtext("cap/img"+str(count)+".jpg")
 
-                # Esta parte no la he probado pero se supone que va a la bdd y busca la matricula
-                # conexion = mysql.connector.connect(user='root', password='', host='localhost', database='platelink', port=3306)
-                # cursor = conexion.cursor()
-                # cursor.callproc('datosMatricula', ["CF-25-756"])
+                for i in output:
+                    if "-" in i[1]:
+                        print("Numero de matricula encontrado: " + i[1])
+                        matr_detectada = i[1]
 
-                # for result in cursor.stored_results():
-                #     resultados = result.fetchall()
+                #         # Esta parte no la he probado pero se supone que va a la bdd y busca la matricula
+                #         conexion = mysql.connector.connect(user='root', password='', host='localhost', database='platelink', port=3306)
+                #         cursor = conexion.cursor()
+                #         cursor.callproc('datosMatricula', [matr_detectada])
 
-                # print("(#Matr - Año - Importada / Nombre - Paterno - Materno - CURP / #SerieVehi - Marca - Modelo - Año - Color - Ult.Revista)")
-                # for x in range(len(resultados)):
-                #     print(resultados[x])
-        count += 1
+                #         for result in cursor.stored_results():
+                #             resultados = result.fetchall()
+
+                #         print("(#Matr - Año - Importada / Nombre - Paterno - Materno - CURP / #SerieVehi - Marca - Modelo - Año - Color - Ult.Revista)")
+
+                #         for x in range(len(resultados)):
+                #             print(resultados[x])
+                count += 1
+
+
+
+        except NameError:
+            # throw an exception or do something else
+            print("No se ha detectado una matrícula todavía")
+
+        
+
+
 
