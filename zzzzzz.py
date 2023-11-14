@@ -9,7 +9,7 @@ def borrarCapturasEnMemoria():
     for capt in capturas:
         os.remove("cap/"+capt)
 
-ruta_capturas = "C:\\Users\\Alan Gonzalez\\Documents\\Platelink\\cap"
+ruta_capturas = "cap"
 harcascade = "model/cascade24min.xml"
 matr_detectada = ""
 
@@ -77,20 +77,39 @@ while running:
                 for i in output:
                     if "-" in i[1]:
                         print("Numero de matricula encontrado: " + i[1])
+                        print("Buscando en base de datos...")
                         matr_detectada = i[1]
 
-                #         # Esta parte no la he probado pero se supone que va a la bdd y busca la matricula
-                #         conexion = mysql.connector.connect(user='root', password='', host='localhost', database='platelink', port=3306)
-                #         cursor = conexion.cursor()
-                #         cursor.callproc('datosMatricula', [matr_detectada])
+                        # Esta parte no la he probado pero se supone que va a la bdd y busca la matricula
+                        conexion = mysql.connector.connect(user='root', password='', host='localhost', database='platelink', port=3306)
+                        cursor = conexion.cursor()
+                        cursor.callproc('datosMatricula', [matr_detectada])
 
-                #         for result in cursor.stored_results():
-                #             resultados = result.fetchall()
+                        for result in cursor.stored_results():
+                            resultados = result.fetchall()
 
-                #         print("(#Matr - Año - Importada / Nombre - Paterno - Materno - CURP / #SerieVehi - Marca - Modelo - Año - Color - Ult.Revista)")
+                        # print("(#Matr - Año - Importada / Nombre - Paterno - Materno - CURP / #SerieVehi - Marca - Modelo - Año - Color - Ult.Revista)")
 
-                #         for x in range(len(resultados)):
-                #             print(resultados[x])
+                        results_flag = False
+                        for x in range(len(resultados)):
+                            results_flag = True
+                            print("COINCIDENCIA EN BASE DE DATOS")
+                            print("Matricula: "+str(resultados[x][0]))
+                            print("Año: "+str(resultados[x][1]))
+                            print("Importada: "+str(resultados[x][2]))
+                            print("Nombre del titular: "+str(resultados[x][3]))
+                            print("Apellido paterno: "+str(resultados[x][4]))
+                            print("Apellido materno: "+str(resultados[x][5]))
+                            print("CURP: "+str(resultados[x][6]))
+                            print("Numero de serie del vehiculo: "+str(resultados[x][7]))
+                            print("Marca: "+str(resultados[x][8]))
+                            print("Modelo: "+str(resultados[x][9]))
+                            print("Año del vehiculo: "+str(resultados[x][10]))
+                            print("Color: "+str(resultados[x][11]))
+                            print("Fecha de ultima revista: "+str(resultados[x][12]))
+                            # print(resultados[x])
+                        if results_flag == False:
+                            print("No se encontró una coincidencia en la base de datos, intente de nuevo")
                 count += 1
 
 
@@ -98,8 +117,3 @@ while running:
         except NameError:
             # throw an exception or do something else
             print("No se ha detectado una matrícula todavía")
-
-        
-
-
-
