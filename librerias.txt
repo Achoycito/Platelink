@@ -2,3 +2,4 @@ opencv
 easyocr
 mysql.connector
 imutils
+tkinter

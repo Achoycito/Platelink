@@ -4,13 +4,16 @@ import os
 import easyocr
 import mysql.connector
 
+base_ruta = "C:/Users/Alan Gonzalez/Documents/Platelink/"
+
 def borrarCapturasEnMemoria():
     capturas = os.listdir(ruta_capturas)
     for capt in capturas:
-        os.remove("cap/"+capt)
+        os.remove(base_ruta+"cap/"+capt)
 
-ruta_capturas = "cap"
-harcascade = "model/cascade24min.xml"
+# ruta_capturas = "cap"
+ruta_capturas = base_ruta+"cap"
+harcascade = base_ruta+"model/cascade24min.xml"
 matr_detectada = ""
 
 running = True
@@ -42,7 +45,7 @@ while running:
         if area > min_area: #Creo que aquí está checando que lo que detectó sea de un tamaño minimo para ver si se trata de una placa o nel
             # cv2.rectangle(img, (x,y), (x+w, y+h), (0, 255, 255), 2) #Crea un rectangulo en la imagen que capturo de la matricula (x, y, ancho, alto, color, grosor)
             cv2.rectangle(img, (x-hco,y-hco), (x+w+wco, y+h+hco), (0, 255, 0), 2) #Crea un rectangulo en la imagen que capturo de la matricula (x, y, ancho, alto, color, grosor)
-            cv2.putText(img, "MATRICULA", (x,y-5), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 0, 255), 2) #Escribir texto "Num Placa" (pos, fuente, tamaño, color, grosor)
+            # cv2.putText(img, "MATRICULA", (x,y-5), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 0, 255), 2) #Escribir texto "Num Placa" (pos, fuente, tamaño, color, grosor)
 
             yCoord = y-hco if y-hco>0 else y
             xCoord = x-wco if x-wco>0 else x
@@ -69,16 +72,18 @@ while running:
             else:
                 # Codigo de que si encontro esa madre
 
-                cv2.imwrite("cap/img"+str(count)+".jpg", img_roi)
+                cv2.imwrite(base_ruta+"cap/img"+str(count)+".jpg", img_roi)
 
                 reader = easyocr.Reader(["es"], gpu=True)
-                output = reader.readtext("cap/img"+str(count)+".jpg")
+                output = reader.readtext(base_ruta+"cap/img"+str(count)+".jpg")
 
                 for i in output:
                     if "-" in i[1]:
-                        print("Numero de matricula encontrado: " + i[1])
-                        print("Buscando en base de datos...")
                         matr_detectada = i[1]
+                        matr_detectada = matr_detectada.replace(" ", "")
+
+                        print("Numero de matricula encontrado: " + matr_detectada)
+                        print("Buscando en base de datos...")
 
                         # Esta parte no la he probado pero se supone que va a la bdd y busca la matricula
                         conexion = mysql.connector.connect(user='root', password='', host='localhost', database='platelink', port=3306)
@@ -112,8 +117,9 @@ while running:
                             print("No se encontró una coincidencia en la base de datos, intente de nuevo")
                 count += 1
 
-
-
         except NameError:
             # throw an exception or do something else
             print("No se ha detectado una matrícula todavía")
+        
+
+        print("\n\n\n\n\n\nPresione 's' para tomar una captura, 'q' para cerrar el programa")
